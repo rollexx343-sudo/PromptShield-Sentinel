@@ -31,33 +31,33 @@ def dlp_sanitize_output(text):
     return text
 
 def personal_ai_generate_response(user_message):
-    api_key = os.getenv("GROQ_API_KEY", "").strip()
-    if not api_key:
-        return "PromptShield AI: Safe prompt received, but Groq API key is missing."
+    ngrok_url = os.getenv("OLLAMA_BASE_URL", "").strip().rstrip("/")
+    if not ngrok_url:
+        return "PromptShield AI: Safe prompt received, but OLLAMA_BASE_URL is missing."
 
-    url = "https://api.groq.com/openai/v1/chat/completions"
+    url = f"{ngrok_url}/api/chat"
     headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true"
     }
     payload = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "llama3.2",
         "messages": [
             {"role": "system", "content": "You are PromptShield AI, an intelligent, helpful personal AI assistant."},
             {"role": "user", "content": user_message}
-        ]
+        ],
+        "stream": False
     }
 
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=12)
-        data = response.json()
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
         if response.status_code == 200:
-            return data['choices'][0]['message']['content']
+            data = response.json()
+            return data.get('message', {}).get('content', 'No response received from Ollama.')
         else:
-            err_msg = data.get('error', {}).get('message', f"Status {response.status_code}")
-            return f"Cloud AI Notice ({response.status_code}): {err_msg}"
+            return f"Ollama Error ({response.status_code}): {response.text}"
     except Exception as e:
-        return f"AI Service Error: {str(e)}"
+        return f"Local AI Connection Error: {str(e)}"
 
 @login_required(login_url='/login/')
 
