@@ -14,7 +14,8 @@ import uuid
 import json
 import re
 import base64
-import ollama
+import os
+import requests
 
 
  
@@ -30,21 +31,29 @@ def dlp_sanitize_output(text):
     return text
 
 def personal_ai_generate_response(user_message):
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return "PromptShield AI: Safe prompt received, but Groq API key is missing."
+
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama-3.1-8b-instant",
+        "messages": [
+            {"role": "system", "content": "You are PromptShield AI, an intelligent, helpful personal AI assistant."},
+            {"role": "user", "content": user_message}
+        ]
+    }
+
     try:
-        response = ollama.chat(
-            model="llama3.2",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are PromptShield AI, an intelligent, helpful personal AI assistant. Answer accurately and naturally."
-                },
-                {
-                    "role": "user",
-                    "content": user_message
-                }
-            ]
-        )
-        return response['message']['content']
+        response = requests.post(url, headers=headers, json=payload, timeout=12)
+        if response.status_code == 200:
+            return response.json()['choices'][0]['message']['content']
+        else:
+            return f"Cloud AI Notice: Response code {response.status_code}. Traffic validated safe."
     except Exception as e:
         return f"Local AI Error: {str(e)}"
 
