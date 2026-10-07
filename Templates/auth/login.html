@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aegis Cyber Defense // SOC Portal Access</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #060b13;
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6, 182, 212, 0.25), transparent),
+        radial-gradient(ellipse 60% 40% at 50% 120%, rgba(14, 165, 233, 0.15), transparent),
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      color: #cbd5e1;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    }
+
+    .cyber-card {
+      background: rgba(10, 20, 38, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      box-shadow: 0 0 50px -10px rgba(6, 182, 212, 0.2), inset 0 0 20px rgba(6, 182, 212, 0.05);
+    }
+
+    .neon-glow-btn {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+    .neon-glow-btn:hover {
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.65);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+
+  <!-- Ambient Glow Orbs -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Main Box -->
+  <div class="cyber-card max-w-md w-full p-8 rounded-2xl relative z-10">
+    
+    <!-- Top Sentinel Badge -->
+    <div class="flex items-center justify-between pb-4 mb-6 border-b border-cyan-500/20 text-[11px] font-mono">
+      <span class="text-cyan-400 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        SENTINEL ACTIVE
+      </span>
+      <span class="text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700/60">
+        GATEWAY PROTOCOL
+      </span>
+    </div>
+
+    <!-- Company Logo & Name Header -->
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-400/40 text-cyan-400 mb-3 shadow-[0_0_20px_rgba(6,182,212,0.35)]">
+        <!-- Tech Shield Logo -->
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <h1 class="text-xl font-extrabold tracking-wider text-white uppercase">AEGIS CYBER DEFENSE</h1>
+      <p class="text-[11px] text-cyan-400 font-mono tracking-widest mt-0.5">PromptShield Sentinel v3.0</p>
+    </div>
+
+    <!-- Toggle Buttons -->
+    <div class="flex border-b border-slate-700/80 mb-6 text-xs font-mono tracking-wider">
+      <button type="button" id="tab-login" onclick="switchMode('login')" class="flex-1 pb-2.5 border-b-2 border-cyan-400 text-cyan-400 font-bold transition-all">
+        <i class="fa-solid fa-right-to-bracket mr-1.5"></i> LOGIN
+      </button>
+      <button type="button" id="tab-signup" onclick="switchMode('signup')" class="flex-1 pb-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">
+        <i class="fa-solid fa-user-plus mr-1.5"></i> NEW ENROLL
+      </button>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="p-3 mb-4 text-xs rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Form -->
+    <form method="POST" action="/login/" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="action" id="action-type" value="login">
+
+      <!-- Employee Name (Only for signup) -->
+      <div id="field-name" class="hidden">
+        <label class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400 mb-1 font-mono">Employee Name</label>
+        <input type="text" name="employee_name" placeholder="Full Name" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-cyan-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+      </div>
+
+      <!-- Employee ID -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400 mb-1 font-mono">Employee ID / Handle</label>
+        <input type="text" name="employee_id" required placeholder="e.g. EMP_9041" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-cyan-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+      </div>
+
+      <!-- Password with Eye Toggle -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400 mb-1 font-mono">Security Key / Password</label>
+        <div class="relative flex items-center">
+          <input type="password" id="passwordInput" name="password" required placeholder="••••••••••••" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-3.5 pr-10 py-2.5 text-sm text-cyan-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 text-slate-400 hover:text-cyan-400 focus:outline-none cursor-pointer">
+            <i id="eye-icon" class="fa-solid fa-eye text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Human Verification Check (Math CAPTCHA) -->
+      <div class="p-3.5 rounded-xl bg-slate-950/70 border border-cyan-500/20">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-[10px] uppercase font-mono tracking-wider text-cyan-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-microchip"></i> Human Verification Check
+          </label>
+          <span class="text-[9px] text-slate-500 font-mono">MATH AUTH</span>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <span id="captcha-question" class="text-sm font-mono text-cyan-300 font-semibold bg-slate-900 px-3 py-1.5 rounded border border-slate-800"></span>
+          <input type="hidden" name="val1" id="val1">
+          <input type="hidden" name="val2" id="val2">
+          <input type="number" name="human_ans" required placeholder="Ans" class="w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-center text-cyan-200 focus:outline-none focus:border-cyan-400 font-mono font-bold">
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" id="submit-btn" class="neon-glow-btn w-full py-3 mt-3 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs uppercase tracking-widest transition-all">
+        Authenticate Gateway
+      </button>
+    </form>
+  </div>
+
+  <script>
+    // Eye button show/hide password logic
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('passwordInput');
+      const eyeIcon = document.getElementById('eye-icon');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+      }
+    }
+
+    // Math Captcha
+    function generateCaptcha() {
+      const v1 = Math.floor(Math.random() * 8) + 2;
+      const v2 = Math.floor(Math.random() * 8) + 2;
+      document.getElementById('val1').value = v1;
+      document.getElementById('val2').value = v2;
+      document.getElementById('captcha-question').innerText = `${v1} + ${v2} = ?`;
+    }
+
+    // Tab Switch
+    function switchMode(mode) {
+      const actionType = document.getElementById('action-type');
+      const fieldName = document.getElementById('field-name');
+      const submitBtn = document.getElementById('submit-btn');
+      const tabLogin = document.getElementById('tab-login');
+      const tabSignup = document.getElementById('tab-signup');
+
+      if (mode === 'signup') {
+        actionType.value = 'register';
+        fieldName.classList.remove('hidden');
+        submitBtn.innerText = 'Create SOC Account';
+        tabSignup.className = 'flex-1 pb-2.5 border-b-2 border-cyan-400 text-cyan-400 font-bold transition-all';
+        tabLogin.className = 'flex-1 pb-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all';
+      } else {
+        actionType.value = 'login';
+        fieldName.classList.add('hidden');
+        submitBtn.innerText = 'Authenticate Gateway';
+        tabLogin.className = 'flex-1 pb-2.5 border-b-2 border-cyan-400 text-cyan-400 font-bold transition-all';
+        tabSignup.className = 'flex-1 pb-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all';
+      }
+    }
+
+    window.onload = generateCaptcha;
+  </script>
+</body>
+</html>
