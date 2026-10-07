@@ -31,7 +31,7 @@ def dlp_sanitize_output(text):
     return text
 
 def personal_ai_generate_response(user_message):
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY", "").strip()
     if not api_key:
         return "PromptShield AI: Safe prompt received, but Groq API key is missing."
 
@@ -41,7 +41,7 @@ def personal_ai_generate_response(user_message):
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "llama-3.1-8b-instant",
+        "model": "llama-3.3-70b-versatile",
         "messages": [
             {"role": "system", "content": "You are PromptShield AI, an intelligent, helpful personal AI assistant."},
             {"role": "user", "content": user_message}
@@ -50,12 +50,14 @@ def personal_ai_generate_response(user_message):
 
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=12)
+        data = response.json()
         if response.status_code == 200:
-            return response.json()['choices'][0]['message']['content']
+            return data['choices'][0]['message']['content']
         else:
-            return f"Cloud AI Notice: Response code {response.status_code}. Traffic validated safe."
+            err_msg = data.get('error', {}).get('message', f"Status {response.status_code}")
+            return f"Cloud AI Notice ({response.status_code}): {err_msg}"
     except Exception as e:
-        return f"Local AI Error: {str(e)}"
+        return f"AI Service Error: {str(e)}"
 
 @login_required(login_url='/login/')
 
